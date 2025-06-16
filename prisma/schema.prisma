@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//Tables
+model Project {
+  id        Int         @id @default(autoincrement())
+  name      String      @unique()// Project Name
+  slaValues SLAEntry[]
+}
+
+model SLAType {
+  id       Int         @id @default(autoincrement())
+  category String      // e.g. "BlockLoadProfile","DailyLoadProfile","BillingProfile"
+  hours    Int         // e.g. 8, 12, 24
+  slaValues SLAEntry[]
+}
+
+model SLAEntry {
+  id         Int       @id @default(autoincrement())
+  projectId  Int
+  project    Project   @relation(fields: [projectId], references: [id])
+
+  slaTypeId  Int
+  slaType    SLAType   @relation(fields: [slaTypeId], references: [id])
+
+  date       DateTime
+  slaValue   Float     // or BigInt if needed
+}
